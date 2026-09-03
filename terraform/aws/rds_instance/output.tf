@@ -1,6 +1,6 @@
 # Output Variables
 
-output "instance_details" {
+output "db_instance_details" {
     description = "Key networking details for the Database server"
     value = {
         instance_id = aws_db_instance.rds_instance.id

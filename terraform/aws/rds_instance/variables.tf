@@ -10,12 +10,6 @@ variable "decommission_date" {
   default     = "2023-12-31"
 }
 
-variable "ami_id" {
-  description = "The AMI ID to use for the instance"
-  type        = string
-  default = "resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64" # Amazon Linux 2 AMI
-}
-
 variable "instance_type" {
   description = "The type of instance to start"
   type        = string

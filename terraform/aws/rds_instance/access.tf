@@ -39,22 +39,13 @@ resource "aws_iam_user_policy" "rds_instance_access" {
           "cloudshell:PutCredentials"
         ]
         # CloudShell environments are global management tools and must target "*"
-        Resource = ["*"] 
+        Resource = ["*"]
       },
       # Grant permission to view the RDS console and see their specific instance
       {
-        Sid    = "AllowUserToSeeRDSDashboard"
-        Effect = "Allow"
-        Action = [
-          "rds:DescribeDBInstances",
-          "rds:DescribeDBSubnetGroups",
-          "rds:DescribeDBParameterGroups",
-          "rds:DescribeDBSecurityGroups",
-          "rds:DescribeEngineDefaultParameters",
-          "rds:DescribeDBClusterParameterGroups",
-          "rds:DescribeDBClusters",
-          "rds:DescribeGlobalClusters"
-        ]
+        Sid      = "AllowUserToSeeRDSDashboard"
+        Effect   = "Allow"
+        Action   = ["rds:Describe*"]
         Resource = ["*"]
       },
       # Grant permission for hidden telemetry actions the console forces to compile page layout
@@ -64,11 +55,7 @@ resource "aws_iam_user_policy" "rds_instance_access" {
         Action = [
           "cloudwatch:GetMetricData",
           "cloudwatch:ListMetrics",
-          "ec2:DescribeAccountAttributes",
-          "ec2:DescribeAvailabilityZones",
-          "ec2:DescribeSubnets",
-          "ec2:DescribeSecurityGroups",
-          "ec2:DescribeVpcs"
+          "ec2:Describe*"
         ]
         Resource = ["*"] # Required by AWS to render the RDS monitoring graphs
       },

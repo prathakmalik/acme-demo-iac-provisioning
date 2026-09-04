@@ -37,25 +37,7 @@ resource "aws_iam_user_policy" "ec2_instance_access" {
       {
         Sid    = "AllowUserToSeeEC2Dashboard"
         Effect = "Allow"
-        Action = [
-          "ec2:DescribeInstances",
-          "ec2:DescribeSubnets",
-          "ec2:DescribeVpcs",
-          "ec2:DescribeSecurityGroups",
-          "ec2:DescribeKeyPairs",
-          "ec2:DescribeInstanceStatus",
-          "ec2:DescribeRouteTables",
-          "ec2:DescribeImages",
-          "ec2:DescribeAddresses",
-          "ec2:DescribeVolumes",
-          "ec2:DescribeSnapshots",
-          "ec2:DescribeNetworkInterfaces",
-          "ec2:DescribeTags",
-          "ec2:DescribeAvailabilityZones",
-          "ec2:DescribeRegions",
-          "ec2:DescribeAccountAttributes",
-          "ec2:DescribeSecurityGroupRules"
-        ]
+        Action = ["ec2:Describe*"]
         Resource = ["*"]
       },
       # Grant permission to start/stop/reboot their specific instance

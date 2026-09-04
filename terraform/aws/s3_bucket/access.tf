@@ -1,26 +1,15 @@
 # Allow user to access the newly created S3 bucket for read/write operations
 
-data "aws_iam_users" "search_user" {
-  # user_name = var.requester_username
-  name_regex = "^${var.requester_username}$"
-}
+module "iam_user" {
+  source = "../modules/iam-user"
 
-resource "aws_iam_user" "create_user" {
-  count = length(data.aws_iam_users.search_user.names) == 0 ? 1 : 0
-
-  name = var.requester_username
-  path = "/FIT-Users/"
-
-  tags = {
-    Name              = var.requester_username
-    Environment       = "Demo"
-    Decommission-Date = var.decommission_date
-  }
+  requester_username = var.requester_username
+  decommission_date  = var.decommission_date
 }
 
 locals {
-  requester_user_arn = length(data.aws_iam_users.search_user.names) > 0 ? tolist(data.aws_iam_users.search_user.arns)[0] : aws_iam_user.create_user[0].arn
-  requester_user_name = length(data.aws_iam_users.search_user.names) > 0 ? tolist(data.aws_iam_users.search_user.names)[0] : aws_iam_user.create_user[0].name
+  requester_user_arn = module.iam_user.user_arn
+  requester_user_name = module.iam_user.user_name
 }
 
 # Grant the user access to the S3 bucket console

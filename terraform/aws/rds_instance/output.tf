@@ -19,6 +19,6 @@ output "user_login_details" {
         username = local.requester_user_name
         password = module.iam_user.user_password
     }
-    sensitive = false
+    sensitive = true
 }
 

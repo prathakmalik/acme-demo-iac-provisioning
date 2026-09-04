@@ -13,12 +13,4 @@ output "db_instance_details" {
     sensitive = true
 }
 
-output "user_login_details" {
-    description = "AWS login details for the user"
-    value = {
-        username = local.requester_user_name
-        password = module.iam_user.user_password
-    }
-    sensitive = true
-}
 

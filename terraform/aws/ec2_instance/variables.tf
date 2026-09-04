@@ -20,3 +20,14 @@ variable "instance_type" {
   default     = "t3.micro"
 }
 
+variable "requester_username" {
+  description = "The username of the person requesting the resource. This will be used to grant access to the S3 bucket."
+  type        = string
+}
+
+variable "default_security_group_id" {
+  description = "The default security group ID to associate with the instance"
+  type        = string
+  default     = "sg-0e0e6dec252b6d850" # FIT_DIA_SecurityGroup_All_Traffic
+}
+

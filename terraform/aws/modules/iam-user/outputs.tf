@@ -11,4 +11,5 @@ output "user_name" {
 output "user_password" {
   description = "The initial password for the created IAM user"
   value       = length(data.aws_iam_users.search_user.names) == 0 ? aws_iam_user_login_profile.developer_login[0].password : null
+  sensitive   = true
 }

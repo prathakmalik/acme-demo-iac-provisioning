@@ -40,3 +40,7 @@ variable "vpc_id" {
   default     = "vpc-040f74b246a0e6155"
 }
 
+variable "requester_username" {
+  description = "The username of the person requesting the resource. This will be used to grant access to the S3 bucket."
+  type        = string
+}

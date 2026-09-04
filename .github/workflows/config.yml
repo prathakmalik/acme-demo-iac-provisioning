@@ -91,12 +91,12 @@ jobs:
         if: always()
         run: |
           if [ "${{ github.event.inputs.action }}" == "apply" ]; then
-            OUTPUTS=$(terraform output -json)
+            OUTPUTS=$(terraform output -json || echo "{}")
           else
-            OUTPUTS="{}"
+            OUTPUTS="null"
           fi
           curl -X POST \
             -H "Content-Type: application/json" \
-            -d "{\"jira_id\": \"${{ github.event.inputs.jira_id }}\", \"action\": \"${{ github.event.inputs.action }}\", \"outputs\": $OUTPUTS}" \
+            -d "{\"jira_id\": \"${{ github.event.inputs.jira_id }}\", \"action\": \"${{ github.event.inputs.action }}\", \"success\": ${{ steps.tf_exec.outcome == 'success' }}, \"outputs\": $OUTPUTS}" \
             ${{ secrets.WORKATO_RESULT_WEBHOOK_URL }}
         working-directory: ./terraform/${{ github.event.inputs.cloud_provider }}/${{ github.event.inputs.module_id }}

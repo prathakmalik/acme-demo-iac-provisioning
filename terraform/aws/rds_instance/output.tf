@@ -17,7 +17,7 @@ output "user_login_details" {
     description = "AWS login details for the user"
     value = {
         username = local.requester_user_name
-        password = one(aws_iam_user_login_profile.developer_login[*].password)
+        password = module.iam_user.user_password
     }
     sensitive = false
 }

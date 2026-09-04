@@ -1,44 +1,15 @@
 # Allow user to access the newly created EC2 instance
 
-data "aws_iam_users" "search_user" {
-  name_regex = "^${var.requester_username}$"
-}
+module "iam_user" {
+  source = "../modules/iam-user"
 
-resource "aws_iam_user" "create_user" {
-  # Only create a new user, if search_user returned no results (i.e. the user does not already exist)
-  count = length(data.aws_iam_users.search_user.names) == 0 ? 1 : 0
-
-  name = var.requester_username
-  path = "/FIT-Users/"
-
-  tags = {
-    Name              = var.requester_username
-    Environment       = "Demo"
-    Decommission-Date = var.decommission_date
-  }
-}
-
-resource "aws_iam_user_login_profile" "developer_login" {
-  # Only create a password profile if a new user was actually generated
-  count = length(data.aws_iam_users.search_user.names) == 0 ? 1 : 0
-
-  user                    = aws_iam_user.create_user[0].name
-  password_length         = 16
-  password_reset_required = true
-
-  # CRITICAL: Prevent consecutive "terraform apply" commands from fighting 
-  # with AWS over whether the user has reset their password yet!
-  lifecycle {
-    ignore_changes = [
-      password_reset_required,
-      password_length
-    ]
-  }
+  requester_username = var.requester_username
+  decommission_date  = var.decommission_date
 }
 
 locals {
-  requester_user_arn  = length(data.aws_iam_users.search_user.names) > 0 ? tolist(data.aws_iam_users.search_user.arns)[0] : aws_iam_user.create_user[0].arn
-  requester_user_name = length(data.aws_iam_users.search_user.names) > 0 ? tolist(data.aws_iam_users.search_user.names)[0] : aws_iam_user.create_user[0].name
+  requester_user_arn  = module.iam_user.user_arn
+  requester_user_name = module.iam_user.user_name
   ec2_default_user    = "ec2-user" # Standard Amazon Linux AMIs use "ec2-user" as the baseline terminal login name
 }
 

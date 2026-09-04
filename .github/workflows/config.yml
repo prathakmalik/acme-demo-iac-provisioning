@@ -1,0 +1,102 @@
+name: "Workato Demo Provisioning (Secret-Based)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform: apply or destroy'
+        required: true
+        default: 'apply'
+      jira_id:
+        description: 'Jira Issue Key'
+        required: true
+      requester_username:
+        description: 'Username of the requester'
+        required: true
+      cloud_provider:
+        description: 'aws or gcp'
+        required: true
+      module_id:
+        description: 'Terraform Module ID'
+        required: true
+      db_password:
+        description: 'Database Password'
+        required: true
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      # --- SECRET-BASED AUTHENTICATION BLOCK ---
+      
+      - name: Configure AWS Credentials
+        if: github.event.inputs.cloud_provider == 'aws'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Configure GCP Credentials
+        if: github.event.inputs.cloud_provider == 'gcp'
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      # ------------ TERRAFORM STEPS  ---------------
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+
+      - name: Terraform Init
+        run: |
+          terraform init             -backend-config="key=demo-infra/${{ github.event.inputs.jira_id }}/terraform.tfstate"
+        working-directory: ./terraform/${{ github.event.inputs.cloud_provider }}/${{ github.event.inputs.module_id }}
+
+      - name: Terraform Execute
+        id: tf_exec
+        run: |
+          if [ "${{ github.event.inputs.action }}" == "apply" ]; then
+            terraform apply --auto-approve \
+              -var="jira_id=${{ github.event.inputs.jira_id }}" \
+              -var="cloud_provider=${{ github.event.inputs.cloud_provider }}" \
+              -var="module_id=${{ github.event.inputs.module_id }}" \
+              -var="db_password=${{ github.event.inputs.db_password }}" \
+              -var="requester_username=${{ github.event.inputs.requester_username }}"
+          elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
+            terraform destroy --auto-approve \
+              -var="jira_id=${{ github.event.inputs.jira_id }}" \
+              -var="cloud_provider=${{ github.event.inputs.cloud_provider }}" \
+              -var="module_id=${{ github.event.inputs.module_id }}" \
+              -var="db_password=${{ github.event.inputs.db_password }}" \
+              -var="requester_username=${{ github.event.inputs.requester_username }}"
+          else
+            echo "Invalid action: ${{ github.event.inputs.action }}"
+            exit 1
+          fi
+        working-directory: ./terraform/${{ github.event.inputs.cloud_provider }}/${{ github.event.inputs.module_id }}
+
+      # - name: Archive State File
+      #   if: github.event.inputs.action == 'destroy' && steps.tf_exec.outcome == 'success'
+      #   run: |
+      #     echo "Archiving state file for ${{ github.event.inputs.jira_id }}..."
+      #     aws s3 mv \
+      #       s3://fit-dia-terraform-state/${{ github.event.inputs.jira_id }}/terraform.tfstate \
+      #       s3://fit-dia-terraform-state/Archive/${{ github.event.inputs.jira_id }}/terraform.tfstate
+
+      - name: Send Results to Workato
+        if: always()
+        run: |
+          if [ "${{ github.event.inputs.action }}" == "apply" ]; then
+            OUTPUTS=$(terraform output -json)
+          else
+            OUTPUTS="{}"
+          fi
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d "{\"jira_id\": \"${{ github.event.inputs.jira_id }}\", \"action\": \"${{ github.event.inputs.action }}\", \"outputs\": $OUTPUTS}" \
+            ${{ secrets.WORKATO_RESULT_WEBHOOK_URL }}
+        working-directory: ./terraform/${{ github.event.inputs.cloud_provider }}/${{ github.event.inputs.module_id }}

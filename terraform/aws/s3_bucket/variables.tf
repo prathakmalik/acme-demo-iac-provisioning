@@ -10,3 +10,8 @@ variable "decommission_date" {
   default     = "2023-12-31"
 }
 
+variable "requester_username" {
+  description = "The username of the person requesting the resource. This will be used to grant access to the S3 bucket."
+  type        = string
+}
+

@@ -91,7 +91,7 @@ jobs:
           fi
           curl -X POST \
             -H "Content-Type: application/json" \
-            -H "api-token: Bearer ${{ secrets.WORKATO_API_KEY }}" \
+            -H "api-token: ${{ secrets.WORKATO_API_KEY }}" \
             -d "{\"jira_id\": \"${{ github.event.inputs.jira_id }}\", \"action\": \"${{ github.event.inputs.action }}\", \"success\": ${{ steps.tf_exec.outcome == 'success' }}, \"outputs\": $OUTPUTS}" \
             ${{ secrets.WORKATO_RESULT_WEBHOOK_URL }}
         working-directory: ./terraform/${{ github.event.inputs.cloud_provider }}/${{ github.event.inputs.module_id }}

@@ -20,6 +20,7 @@ locals {
   db_instance_name  = "DIA-RDSInstance-${var.req_id}"
   sg_name           = "DIA-SG-${var.req_id}"
   lb_name           = "DIA-LB-${var.req_id}"
+  ec2_default_user  = "ec2-user" # Standard Amazon Linux AMIs use "ec2-user" as the baseline terminal login name
 
   common_tags = {
     Environment       = "Demo"

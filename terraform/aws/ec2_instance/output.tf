@@ -2,17 +2,17 @@
 
 output "ec2_instance_details" {
   description = "Key networking details for the web server"
-  value = {
+  value = jsonencode({
     login_user    = local.ec2_default_user
     instance_id   = aws_instance.ec2_instance.id
     instance_name = aws_instance.ec2_instance.tags["Name"]
     public_ip     = aws_instance.ec2_instance.public_ip
     private_ip    = aws_instance.ec2_instance.private_ip
-  }
+  })
 }
 
 output "user_login_details" {
   description = "AWS login details for the user"
-  value       = module.iam_user.user_login_details
+  value       = jsonencode(module.iam_user.user_login_details)
   sensitive   = true
 }

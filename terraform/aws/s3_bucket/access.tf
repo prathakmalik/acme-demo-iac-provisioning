@@ -8,8 +8,8 @@ module "iam_user" {
 }
 
 locals {
-  requester_user_arn = module.iam_user.user_arn
-  requester_user_name = module.iam_user.user_name
+  requester_user_arn  = module.iam_user.user_login_details.userarn
+  requester_user_name = module.iam_user.user_login_details.username
 }
 
 # Grant the user access to the S3 bucket console

@@ -8,8 +8,8 @@ module "iam_user" {
 }
 
 locals {
-  requester_user_arn  = module.iam_user.user_arn
-  requester_user_name = module.iam_user.user_name
+  requester_user_arn  = module.iam_user.user_login_details.userarn
+  requester_user_name = module.iam_user.user_login_details.username
   ec2_default_user    = "ec2-user" # Standard Amazon Linux AMIs use "ec2-user" as the baseline terminal login name
 }
 

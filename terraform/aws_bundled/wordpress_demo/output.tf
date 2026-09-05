@@ -40,6 +40,12 @@ output "security_group_details" {
     }
 }
 
+output "user_login_details" {
+    description = "AWS login details for the user"
+    value       = module.iam_user.user_login_details
+    sensitive   = true
+}
+
 # output "load_balancer_details" {
 #     description = "Key networking details for the Load Balancer"
 #     value = {

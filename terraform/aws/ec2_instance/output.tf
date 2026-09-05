@@ -10,3 +10,9 @@ output "ec2_instance_details" {
     private_ip    = aws_instance.ec2_instance.private_ip
   }
 }
+
+output "user_login_details" {
+  description = "AWS login details for the user"
+  value       = module.iam_user.user_login_details
+  sensitive   = true
+}

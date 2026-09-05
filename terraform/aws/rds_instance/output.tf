@@ -13,4 +13,10 @@ output "db_instance_details" {
     sensitive = true
 }
 
+output "user_login_details" {
+    description = "AWS login details for the user"
+    value       = module.iam_user.user_login_details
+    sensitive   = true
+}
+
 

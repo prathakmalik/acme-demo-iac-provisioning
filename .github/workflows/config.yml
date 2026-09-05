@@ -14,7 +14,7 @@ on:
         description: 'Username of the requester'
         required: true
       cloud_provider:
-        description: 'aws or gcp'
+        description: 'aws, aws_bundled or gcp'
         required: true
       module_id:
         description: 'Terraform Module ID'
@@ -33,7 +33,7 @@ jobs:
       # --- SECRET-BASED AUTHENTICATION BLOCK ---
       
       - name: Configure AWS Credentials
-        if: github.event.inputs.cloud_provider == 'aws'
+        if: github.event.inputs.cloud_provider == 'aws' || github.event.inputs.cloud_provider == 'aws_bundled'
         uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

@@ -38,8 +38,9 @@ resource "aws_s3_bucket" "s3_bucket" {
 
 # EC2 Instance Resource
 resource "aws_instance" "ec2_instance" {
-  ami           = var.ami_id
-  instance_type = var.ec2_instance_type
+  ami                    = var.ami_id
+  instance_type          = var.ec2_instance_type
+  vpc_security_group_ids = [var.default_security_group_id]
 
   tags = merge(local.common_tags, {
     Name = local.ec2_instance_name

@@ -13,7 +13,7 @@ variable "decommission_date" {
 variable "ami_id" {
   description = "The AMI ID to use for the instance"
   type        = string
-  default = "resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64" # Amazon Linux 2 AMI
+  default     = "resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64" # Amazon Linux 2 AMI
 }
 
 variable "ec2_instance_type" {
@@ -44,3 +44,10 @@ variable "requester_username" {
   description = "The username of the person requesting the resource. This will be used to grant access to the S3 bucket."
   type        = string
 }
+
+variable "default_security_group_id" {
+  description = "The default security group ID to associate with the instance"
+  type        = string
+  default     = "sg-0e0e6dec252b6d850" # FIT_DIA_SecurityGroup_All_Traffic
+}
+

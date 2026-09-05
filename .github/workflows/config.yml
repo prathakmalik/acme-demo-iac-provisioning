@@ -61,14 +61,14 @@ jobs:
         run: |
           if [ "${{ github.event.inputs.action }}" == "apply" ]; then
             terraform apply -auto-approve \
-              -var="jira_id=${{ github.event.inputs.jira_id }}" \
+              -var="req_id=${{ github.event.inputs.jira_id }}" \
               -var="cloud_provider=${{ github.event.inputs.cloud_provider }}" \
               -var="module_id=${{ github.event.inputs.module_id }}" \
               -var="db_password=${{ github.event.inputs.db_password }}" \
               -var="requester_username=${{ github.event.inputs.requester_username }}"
           elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
             terraform destroy -auto-approve \
-              -var="jira_id=${{ github.event.inputs.jira_id }}" \
+              -var="req_id=${{ github.event.inputs.jira_id }}" \
               -var="cloud_provider=${{ github.event.inputs.cloud_provider }}" \
               -var="module_id=${{ github.event.inputs.module_id }}" \
               -var="db_password=${{ github.event.inputs.db_password }}" \

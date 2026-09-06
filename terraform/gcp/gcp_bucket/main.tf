@@ -17,16 +17,15 @@ terraform {
 provider "google" {
   project     = "fit-dia-demo-project"
   # region      = "us-central1"
-  credentials = file("C:/Users/prath/Downloads/fit-dia-demo-project-cec7efb55152.json")
+  credentials = var.google_credentials
 }
-
 
 locals {
   bucket_name = "DIA-GCPBucket-${var.req_id}"
   project_name = "fit-dia-demo-project"
 }
 
-resource "google_storage_bucket" "s3_bucket" {
+resource "google_storage_bucket" "storage_bucket" {
   name = lower(local.bucket_name)
   location = "US"
   force_destroy = true

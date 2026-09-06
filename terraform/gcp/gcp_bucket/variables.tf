@@ -10,3 +10,14 @@ variable "decommission_date" {
   default     = "2023-12-31"
 }
 
+variable "google_credentials" {
+  type        = string
+  description = "Path to the GCP service account key JSON file. Defaults to null to allow GOOGLE_APPLICATION_CREDENTIALS to be used in CI/CD."
+  default     = null
+}
+
+# variable "requester_username" {
+#   description = "The username of the person requesting the resource. This will be used to grant access to the GCP bucket."
+#   type        = string
+# }
+

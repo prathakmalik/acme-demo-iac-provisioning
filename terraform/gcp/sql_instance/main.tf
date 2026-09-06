@@ -17,7 +17,7 @@ terraform {
 provider "google" {
   project     = "fit-dia-demo-project"
   # region      = "us-central1"
-  credentials = file("C:/Users/prath/Downloads/fit-dia-demo-project-cec7efb55152.json")
+  credentials = var.google_credentials
 }
 
 locals {
@@ -39,5 +39,12 @@ resource "google_sql_database_instance" "sql_instance" {
       decommission_date = lower(var.decommission_date)
     }
   }
+}
+
+resource "google_sql_user" "root_user" {
+  name     = "root"
+  instance = google_sql_database_instance.sql_instance.name
+  host     = "%"
+  password = "root"
 }
 

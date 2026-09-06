@@ -1,6 +1,6 @@
 # Output Variables
 
-output "s3_bucket_details" {
+output "storage_bucket_details" {
   description = "Structural configuration and access metrics for the new S3 bucket"
   value = jsonencode({
     bucket_name = aws_s3_bucket.s3_bucket.id
@@ -10,7 +10,7 @@ output "s3_bucket_details" {
   })
 }
 
-output "ec2_instance_details" {
+output "compute_instance_details" {
   description = "Key networking details for the web server"
   value = jsonencode({
     login_user    = local.ec2_default_user

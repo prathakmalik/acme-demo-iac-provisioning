@@ -1,6 +1,6 @@
 # Output Variables
 
-output "ec2_instance_details" {
+output "compute_instance_details" {
   description = "Key networking details for the web server"
   value = jsonencode({
     login_user    = local.ec2_default_user

@@ -2,14 +2,15 @@
 
 output "db_instance_details" {
     description = "Key networking details for the Database server"
-    value = jsonencode({
+    value = {
         instance_id = aws_db_instance.rds_instance.id
         instance_endpoint = aws_db_instance.rds_instance.endpoint
         instance_port = aws_db_instance.rds_instance.port
+        instance_arn = aws_db_instance.rds_instance.arn
         username = aws_db_instance.rds_instance.username
         password = var.db_password
         # password = nonsensitive(var.db_password)
-    })
+    }
     sensitive = true
 }
 

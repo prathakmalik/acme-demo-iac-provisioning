@@ -15,7 +15,6 @@ terraform {
 }
 
 locals {
-  bucket_name       = "DIA-S3Bucket-${var.req_id}"
   ec2_instance_name = "DIA-EC2Instance-${var.req_id}"
   db_instance_name  = "DIA-RDSInstance-${var.req_id}"
   sg_name           = "DIA-SG-${var.req_id}"
@@ -27,40 +26,34 @@ locals {
   }
 }
 
-# S3 Bucket Resource
-resource "aws_s3_bucket" "s3_bucket" {
-  bucket = lower(local.bucket_name)
-
-  tags = merge(local.common_tags, {
-    Name = local.bucket_name
-  })
+# S3 Bucket Resource module
+module "s3_bucket" {
+  source = "../../aws/s3_bucket"
+  req_id             = var.req_id
+  decommission_date  = var.decommission_date
+  requester_username = var.requester_username
 }
 
-# EC2 Instance Resource
-resource "aws_instance" "ec2_instance" {
-  ami                    = var.ami_id
-  instance_type          = var.ec2_instance_type
-  vpc_security_group_ids = [var.default_security_group_id]
-
-  tags = merge(local.common_tags, {
-    Name = local.ec2_instance_name
-  })
+# EC2 Instance Resource module
+module "compute_instance" {
+  source = "../../aws/ec2_instance"
+  req_id             = var.req_id
+  decommission_date  = var.decommission_date
+  ami_id             = var.ami_id
+  instance_type      = var.ec2_instance_type
+  default_security_group_id = var.default_security_group_id
+  requester_username = var.requester_username
 }
 
-# DB Instance Resource
-resource "aws_db_instance" "rds_instance" {
-  allocated_storage   = 20
-  engine              = "mysql"
-  engine_version      = "8.0"
-  instance_class      = var.db_instance_type
-  db_name             = lower(replace(local.db_instance_name, "-", "_"))
-  username            = "admin"
-  password            = var.db_password
-  skip_final_snapshot = true
-
-  tags = merge(local.common_tags, {
-    Name = local.db_instance_name
-  })
+# DB Instance Resource mdodule
+module "db_instance" {
+  source = "../../aws/rds_instance"
+  req_id             = var.req_id
+  decommission_date  = var.decommission_date
+  instance_type      = var.db_instance_type
+  default_security_group_id = var.default_security_group_id
+  db_password        = var.db_password
+  requester_username = var.requester_username
 }
 
 # Security Group Resource
@@ -83,7 +76,7 @@ resource "aws_security_group" "demo_sg" {
 
 
 
-############################# CREATE Load Balancer is Unavailable######################################
+############################# CREATE Load Balancer is Unavailable ######################################
 # │ Error: creating ELBv2 network Load Balancer (DIA-LB-REQ-12345): operation error Elastic Load Balancing v2: CreateLoadBalancer, 
 #   https response error StatusCode: 400, RequestID: 12488e6f-66b2-4a59-aa1e-934674497708, 
 #   OperationNotPermitted: This AWS account currently does not support creating load balancers. 

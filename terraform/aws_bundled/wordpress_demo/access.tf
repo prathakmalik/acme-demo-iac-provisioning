@@ -27,7 +27,7 @@ resource "aws_iam_user_policy" "ec2_instance_access" {
         Sid      = "AllowInstanceConnectPushKey"
         Effect   = "Allow"
         Action   = ["ec2-instance-connect:SendSSHPublicKey"]
-        Resource = ["${aws_instance.ec2_instance.arn}"]
+        Resource = [module.compute_instance.compute_instance_details.instance_arn]
         Condition = {
           StringEquals = {
             "ec2:osuser" = local.ec2_default_user
@@ -36,9 +36,9 @@ resource "aws_iam_user_policy" "ec2_instance_access" {
       },
       # Grant permission to view the EC2 console and see their specific instance
       {
-        Sid    = "AllowUserToSeeEC2Dashboard"
-        Effect = "Allow"
-        Action = ["ec2:Describe*"]
+        Sid      = "AllowUserToSeeEC2Dashboard"
+        Effect   = "Allow"
+        Action   = ["ec2:Describe*"]
         Resource = ["*"]
       },
       # Grant permission to start/stop/reboot their specific instance
@@ -51,28 +51,21 @@ resource "aws_iam_user_policy" "ec2_instance_access" {
           "ec2:RebootInstances"
         ]
         # Restrict execution explicitly to their specific EC2 ARN for absolute safety
-        Resource = ["${aws_instance.ec2_instance.arn}"]
+        Resource = [module.compute_instance.compute_instance_details.instance_arn]
       }
     ]
   })
 }
 
 # Grant the user access to the S3 and RDS console
-resource "aws_iam_user_policy" "s3_rds_access_policy" {
-  user = local.requester_user_name
-  name = "S3_RDS_GlobalConsoleVisibility"
+resource "aws_iam_policy" "combined_console_access_policy" {
+  name        = "S3_RDS_GlobalConsoleVisibility"
+  description = "Combined managed policy for S3, RDS, and CloudShell console access"
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      # Grant permission to list all buckets in the S3 console
-      {
-        Sid      = "AllowUserToListAllBucketsInConsole"
-        Effect   = "Allow"
-        Action   = ["s3:ListAllMyBuckets"]
-        Resource = ["*"]
-      },
-      # Grant full authorization to launch and approve the console container environment
+      # Grant full authorization to launch and approve the CloudShell console environment
       {
         Sid    = "AllowUserToLaunchCloudShell"
         Effect = "Allow"
@@ -86,25 +79,33 @@ resource "aws_iam_user_policy" "s3_rds_access_policy" {
         ]
         Resource = ["*"]
       },
-      # Grant permission to view the RDS console and see their specific instance
+      # Grant permission to list all buckets in the S3 console
+      {
+        Sid      = "AllowUserToListAllBucketsInConsole"
+        Effect   = "Allow"
+        Action   = ["s3:ListAllMyBuckets"]
+        Resource = ["*"]
+      },
+      # Grant permission to view the RDS console dashboard
       {
         Sid      = "AllowUserToSeeRDSDashboard"
         Effect   = "Allow"
         Action   = ["rds:Describe*"]
         Resource = ["*"]
       },
-      # Grant permission for hidden telemetry actions the console forces to compile page layout
+      # Grant permission for hidden telemetry actions required to render console graphs
       {
         Sid    = "AllowConsoleUIMetadataDiscovery"
         Effect = "Allow"
         Action = [
           "cloudwatch:GetMetricData",
           "cloudwatch:ListMetrics",
-          "ec2:Describe*"
+          "ec2:Describe*",
+          "rds:Describe*"
         ]
-        Resource = ["*"] # Required by AWS to render the RDS monitoring graphs
+        Resource = ["*"]
       },
-      # Grant permission to start/stop/reboot their specific instance
+      # Restrict execution explicitly to their specific RDS ARN for absolute safety
       {
         Sid    = "AllowControlOfSpecificDatabaseOnly"
         Effect = "Allow"
@@ -113,16 +114,21 @@ resource "aws_iam_user_policy" "s3_rds_access_policy" {
           "rds:StopDBInstance",
           "rds:RebootDBInstance"
         ]
-        # Restrict execution explicitly to their specific RDS ARN for absolute safety
-        Resource = ["${aws_db_instance.rds_instance.arn}"]
+        Resource = [module.db_instance.db_instance_details.instance_arn]
       }
     ]
   })
 }
 
+# Attach the Managed Policy to the User
+resource "aws_iam_user_policy_attachment" "combined_access_attach" {
+  user       = local.requester_user_name
+  policy_arn = aws_iam_policy.combined_console_access_policy.arn
+}
+
 # Grant the user access to the newly created S3 bucket for read/write/delete operations
 resource "aws_s3_bucket_policy" "allow_access" {
-  bucket = aws_s3_bucket.s3_bucket.id
+  bucket = module.s3_bucket.storage_bucket_details.bucket_name
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -134,7 +140,7 @@ resource "aws_s3_bucket_policy" "allow_access" {
           AWS = local.requester_user_arn
         }
         Action   = ["s3:ListBucket"]
-        Resource = "${aws_s3_bucket.s3_bucket.arn}"
+        Resource = "${module.s3_bucket.storage_bucket_details.bucket_arn}"
       },
       {
         Sid    = "AllowDirectAccess"
@@ -147,7 +153,7 @@ resource "aws_s3_bucket_policy" "allow_access" {
           "s3:PutObject",
           "s3:DeleteObject"
         ]
-        Resource = "${aws_s3_bucket.s3_bucket.arn}/*"
+        Resource = "${module.s3_bucket.storage_bucket_details.bucket_arn}/*"
       }
     ]
   })

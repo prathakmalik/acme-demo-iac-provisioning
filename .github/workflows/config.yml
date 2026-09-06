@@ -1,4 +1,4 @@
-name: "Workato Demo Provisioning (Secret-Based)"
+name: "[FIT] [DIA] Terraform Workflow"
 
 on:
   workflow_dispatch:
@@ -80,6 +80,18 @@ jobs:
       #     aws s3 mv \
       #       s3://fit-dia-terraform-state/${{ github.event.inputs.jira_id }}/terraform.tfstate \
       #       s3://fit-dia-terraform-state/Archive/${{ github.event.inputs.jira_id }}/terraform.tfstate
+
+      - name: Terraform Rollback on Failure
+        if: github.event.inputs.action == 'apply' && steps.tf_exec.outcome == 'failure'
+        id: tf_exec
+        env:
+          TF_VAR_req_id: ${{ github.event.inputs.jira_id }}
+          TF_VAR_db_password: ${{ github.event.inputs.db_password }}
+          TF_VAR_requester_username: ${{ github.event.inputs.requester_username }}
+        run: |
+          echo "Deployment failed. Rolling back and destroying all created assets..."
+          terraform destroy -auto-approve
+        working-directory: ./terraform/${{ github.event.inputs.cloud_provider }}/${{ github.event.inputs.module_id }}
 
       - name: Send Results to Workato
         if: always()

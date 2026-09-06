@@ -8,6 +8,7 @@ resource "aws_iam_user" "create_user" {
 
   name = var.requester_username
   path = "/FIT-Users/"
+  force_destroy = true
 
   tags = {
     Name              = var.requester_username

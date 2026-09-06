@@ -83,7 +83,7 @@ jobs:
 
       - name: Terraform Rollback on Failure
         if: github.event.inputs.action == 'apply' && steps.tf_exec.outcome == 'failure'
-        id: tf_exec
+        id: tf_rollback
         env:
           TF_VAR_req_id: ${{ github.event.inputs.jira_id }}
           TF_VAR_db_password: ${{ github.event.inputs.db_password }}

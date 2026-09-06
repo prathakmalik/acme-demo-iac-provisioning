@@ -33,7 +33,6 @@ jobs:
       # --- SECRET-BASED AUTHENTICATION BLOCK ---
       
       - name: Configure AWS Credentials
-        if: github.event.inputs.cloud_provider == 'aws' || github.event.inputs.cloud_provider == 'aws_bundled'
         uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

@@ -21,6 +21,8 @@ resource "aws_iam_user" "create_user" {
 resource "aws_iam_user_policy_attachment" "managed_password_change" {
   # Only create a password profile if a new user was actually generated
   count = length(data.aws_iam_users.search_user.names) == 0 ? 1 : 0
+  depends_on = [ aws_iam_user.create_user ]
+
   user       = var.requester_username
   policy_arn = "arn:aws:iam::aws:policy/IAMUserChangePassword"
 }

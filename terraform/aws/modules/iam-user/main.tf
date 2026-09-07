@@ -31,6 +31,7 @@ resource "aws_iam_user_policy_attachment" "managed_password_change" {
 resource "aws_iam_user_login_profile" "developer_login" {
   # Only create a password profile if a new user was actually generated
   count = length(data.aws_iam_users.search_user.names) == 0 ? 1 : 0
+  depends_on = [ aws_iam_user.create_user ]
 
   user                    = aws_iam_user.create_user[0].name
   password_length         = 16

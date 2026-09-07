@@ -34,3 +34,26 @@ resource "aws_iam_user_login_profile" "developer_login" {
     ]
   }
 }
+
+resource "aws_iam_user_policy" "password_change_policy" {
+  name = "AllowSelfPasswordChange"
+  user = aws_iam_user.create_user[0].name
+
+  # The exact JSON policy block allowing password operations on their own resource
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowUserToChangeTheirOwnPassword"
+        Effect = "Allow"
+        Action = [
+          "iam:ChangePassword",
+          "iam:GetAccountPasswordPolicy"
+        ]
+        Resource = "arn:aws:iam::*:user/$${var.requester_username}" 
+        # Note: Dual dollar signs ($$) escape the variable string so Terraform 
+        # passes it safely to AWS IAM instead of evaluating it locally.
+      }
+    ]
+  })
+}

@@ -36,6 +36,8 @@ resource "aws_iam_user_login_profile" "developer_login" {
 }
 
 resource "aws_iam_user_policy" "password_change_policy" {
+  count = length(data.aws_iam_users.search_user.names) == 0 ? 1 : 0
+
   name = "AllowSelfPasswordChange"
   user = aws_iam_user.create_user[0].name
 

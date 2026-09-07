@@ -81,7 +81,8 @@ jobs:
       #       s3://fit-dia-terraform-state/Archive/${{ github.event.inputs.jira_id }}/terraform.tfstate
 
       - name: Terraform Rollback on Failure
-        if: github.event.inputs.action == 'apply' && steps.tf_exec.outcome == 'failure'
+        if: failure() && github.event.inputs.action == 'apply' && steps.tf_exec.outcome == 'failure'
+
         id: tf_rollback
         env:
           TF_VAR_req_id: ${{ github.event.inputs.jira_id }}

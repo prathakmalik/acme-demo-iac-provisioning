@@ -57,7 +57,7 @@ resource "aws_iam_user_policy" "password_change_policy" {
           "iam:ChangePassword",
           "iam:GetAccountPasswordPolicy"
         ]
-        Resource = "arn:aws:iam::*:user/${local.parsed_username}" 
+        Resource = "arn:aws:iam::*:user/${local.parsed_username}*" 
         # Note: Dual dollar signs ($$) escape the variable string so Terraform 
         # passes it safely to AWS IAM instead of evaluating it locally.
       }

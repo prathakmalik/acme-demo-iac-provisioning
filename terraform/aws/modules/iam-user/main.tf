@@ -19,6 +19,8 @@ resource "aws_iam_user" "create_user" {
 
 # Attach the standard, robust AWS-Managed Policy for password resets
 resource "aws_iam_user_policy_attachment" "managed_password_change" {
+  # Only create a password profile if a new user was actually generated
+  count = length(data.aws_iam_users.search_user.names) == 0 ? 1 : 0
   user       = var.requester_username
   policy_arn = "arn:aws:iam::aws:policy/IAMUserChangePassword"
 }
